@@ -7,6 +7,7 @@ project(pacontrol)
 find_package(catkin REQUIRED COMPONENTS
   message_generation
   roscpp
+  rostest
   std_msgs
 )
 
@@ -190,9 +191,10 @@ install(TARGETS pacontrol pamixer
 
 ## Add gtest based cpp test target and link libraries
 # catkin_add_gtest(${PROJECT_NAME}-test test/test_pacontrol.cpp)
-# if(TARGET ${PROJECT_NAME}-test)
-#   target_link_libraries(${PROJECT_NAME}-test ${PROJECT_NAME})
-# endif()
+if(CATKIN_ENABLE_TESTING)
+  add_rostest_gtest(test_pacontrol test/test_pacontrol.test test/test_pacontrol.cpp)
+  target_link_libraries(test_pacontrol ${catkin_LIBRARIES})
+endif()
 
 ## Add folders to be run by python nosetests
 # catkin_add_nosetests(test)

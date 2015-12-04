@@ -1,0 +1,5 @@
+<?xml version="1.0"?>
+<launch>
+  <node pkg="pacontrol" type="pacontrol" name="pacontrol" />
+  <test test-name="test_pacontrol" pkg="pacontrol" type="test_pacontrol" />
+</launch>
