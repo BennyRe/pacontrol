@@ -16,9 +16,11 @@
  */
 #include "pacontrol/pacontrol.h"
 
+#include <list>
+#include <boost/foreach.hpp>
+
 PaControl::PaControl() :  node_handle_("~"),
                           pulse_("pacontrol"),
-                          sources_(pulse_.get_sources()),
                           get_mute_service_(node_handle_.advertiseService("get_mute", &PaControl::getMuteCb, this)),
                           set_mute_service_(node_handle_.advertiseService("set_mute", &PaControl::setMuteCb, this))
 {
@@ -33,20 +35,49 @@ PaControl::~PaControl()
 
 void PaControl::printSources()
 {
-  std::list<Device>::iterator it;
+  std::list<Device> sources = pulse_.get_sources();
   ROS_INFO("Available sources:");
-  for (it = sources_.begin(); it != sources_.end(); ++it)
+  BOOST_FOREACH(Device dev, sources)
   {
-    ROS_INFO_STREAM(it->index << " \"" << it->name << "\" \"" << it->description << "\"");
+    ROS_INFO_STREAM(dev.index << " \"" << dev.name << "\" \"" << dev.description << "\"");
   }
 }
 
 bool PaControl::getMuteCb(pacontrol::GetMute::Request& req, pacontrol::GetMute::Response& res)
 {
-  return false;
+  bool success = false;
+  try
+    {
+      Device dev = pulse_.get_source(req.device_name);
+    res.mute = dev.mute;
+    success = true;
+  }
+  catch(std::string& e)
+  {
+    ROS_ERROR("Device '%s' not available: %s", req.device_name.c_str(), e.c_str());
+    printSources();
+  }
+
+  return success;
 }
 
 bool PaControl::setMuteCb(pacontrol::SetMute::Request& req, pacontrol::SetMute::Response& res)
 {
-  return false;
+  bool success = false;
+
+  try
+  {
+    Device dev = pulse_.get_source(req.device_name);
+    ROS_INFO("%s device '%s.", req.mute ? "Mute" : "Unmute", req.device_name.c_str());
+    pulse_.set_mute(dev, req.mute);
+    res.success = true;
+    success = true;
+  }
+  catch(std::string& e)
+  {
+    ROS_ERROR("Device '%s' not available: %s", req.device_name.c_str(), e.c_str());
+    printSources();
+  }
+
+  return success;
 }

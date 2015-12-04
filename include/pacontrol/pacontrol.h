@@ -18,8 +18,6 @@
 #ifndef PACONTROL_H_
 #define PACONTROL_H_
 
-#include <list>
-
 #include "ros/ros.h"
 #include "pacontrol/pulseaudio.hh"
 #include "pacontrol/device.hh"
@@ -35,14 +33,13 @@ public:
   void printSources();
 
 private:
-  ros::NodeHandle node_handle_;
-  Pulseaudio pulse_;
-  std::list<Device> sources_;
-  ros::ServiceServer get_mute_service_;
-  ros::ServiceServer set_mute_service_;
-
   bool getMuteCb(pacontrol::GetMute::Request& req, pacontrol::GetMute::Response& res);
   bool setMuteCb(pacontrol::SetMute::Request& req, pacontrol::SetMute::Response& res);
+
+  ros::NodeHandle node_handle_;
+  Pulseaudio pulse_;
+  ros::ServiceServer get_mute_service_;
+  ros::ServiceServer set_mute_service_;
 };
 
 #endif /* PACONTROL_H_ */
