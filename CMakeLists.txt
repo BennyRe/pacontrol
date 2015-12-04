@@ -130,7 +130,8 @@ include_directories(
 # add_dependencies(pacontrol ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 
 ## Declare a C++ executable
-add_executable(pamixer src/pamixer.cc src/pulseaudio.cc src/device.cc src/callbacks.cc)
+add_executable(pamixer src/callbacks.cc src/device.cc src/pamixer.cc src/pulseaudio.cc)
+add_executable(pacontrol src/callbacks.cc src/device.cc src/pacontrol_node.cc src/pacontrol.cpp src/pulseaudio.cc)
 
 ## Add cmake target dependencies of the executable
 ## same as for the library above
@@ -141,6 +142,11 @@ target_link_libraries(pamixer
   ${catkin_LIBRARIES}
   ${PULSEAUDIO_LIBRARY}
   ${Boost_LIBRARIES}
+)
+
+target_link_libraries(pacontrol
+  ${catkin_LIBRARIES}
+  ${PULSEAUDIO_LIBRARY}
 )
 
 #############
@@ -158,7 +164,7 @@ target_link_libraries(pamixer
 # )
 
 ## Mark executables and/or libraries for installation
-install(TARGETS pamixer
+install(TARGETS pacontrol pamixer
 #   ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
 #   LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
   RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
