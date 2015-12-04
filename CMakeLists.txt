@@ -5,6 +5,7 @@ project(pacontrol)
 ## if COMPONENTS list like find_package(catkin REQUIRED COMPONENTS xyz)
 ## is used, also find other catkin packages
 find_package(catkin REQUIRED COMPONENTS
+  message_generation
   roscpp
   std_msgs
 )
@@ -51,11 +52,11 @@ find_package(PulseAudio REQUIRED)
 # )
 
 ## Generate services in the 'srv' folder
-# add_service_files(
-#   FILES
-#   Service1.srv
-#   Service2.srv
-# )
+add_service_files(
+  FILES
+  GetMute.srv
+  SetMute.srv
+)
 
 ## Generate actions in the 'action' folder
 # add_action_files(
@@ -65,10 +66,10 @@ find_package(PulseAudio REQUIRED)
 # )
 
 ## Generate added messages and services with any dependencies listed here
-# generate_messages(
-#   DEPENDENCIES
-#   std_msgs
-# )
+generate_messages(
+  DEPENDENCIES
+  std_msgs
+)
 
 ################################################
 ## Declare ROS dynamic reconfigure parameters ##
@@ -102,7 +103,7 @@ find_package(PulseAudio REQUIRED)
 catkin_package(
 #  INCLUDE_DIRS include
 #  LIBRARIES pacontrol
- CATKIN_DEPENDS roscpp std_msgs
+ CATKIN_DEPENDS message_runtime roscpp std_msgs
 #  DEPENDS libpulse-dev
 )
 
@@ -133,7 +134,7 @@ add_executable(pamixer src/pamixer.cc src/pulseaudio.cc src/device.cc src/callba
 
 ## Add cmake target dependencies of the executable
 ## same as for the library above
-# add_dependencies(pacontrol_node ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+add_dependencies(pacontrol ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 message(STATUS "Pulse libraries " ${PULSEAUDIO_LIBRARIES})
 ## Specify libraries to link a library or executable target against
 target_link_libraries(pamixer
