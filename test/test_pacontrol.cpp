@@ -69,6 +69,50 @@ TEST(PaControlTestSuite, testServices)
   EXPECT_EQ(original_mute_state, get_mute_srv.response.mute);
 }
 
+TEST(PaControlTestSuite, testDefaultDevice)
+{
+  ros::NodeHandle n;
+  ros::ServiceClient get_mute_client = n.serviceClient<pacontrol::GetMute>("pacontrol/get_mute");
+  ros::ServiceClient set_mute_client = n.serviceClient<pacontrol::SetMute>("pacontrol/set_mute");
+
+  pacontrol::GetMute get_mute_srv;
+  pacontrol::SetMute set_mute_srv;
+
+  // get the initial mute state of the default device
+  ASSERT_TRUE(get_mute_client.call(get_mute_srv))
+    << "Calling the get mute client with the default device the first time failed!";
+
+  bool original_mute_state = get_mute_srv.response.mute;
+
+  // test set mute
+  set_mute_srv.request.mute = true;
+  ASSERT_TRUE(set_mute_client.call(set_mute_srv))
+      << "Muting a valid device the first time failed!";
+  EXPECT_TRUE(set_mute_srv.response.success) << "Muting returned unsuccessfully";
+
+  // did it work?
+  ASSERT_TRUE(get_mute_client.call(get_mute_srv));
+  EXPECT_TRUE(get_mute_srv.response.mute) << "After muting the default device should be muted.";
+
+  // unmute
+  set_mute_srv.request.mute = false;
+  ASSERT_TRUE(set_mute_client.call(set_mute_srv));
+  EXPECT_TRUE(set_mute_srv.response.success) << "Unmuting returned unsuccessfully";
+
+  // did it work?
+  ASSERT_TRUE(get_mute_client.call(get_mute_srv));
+  EXPECT_FALSE(get_mute_srv.response.mute) << "After unmuting the default device should be unmuted.";
+
+  // restore original state
+  set_mute_srv.request.mute = original_mute_state;
+  ASSERT_TRUE(set_mute_client.call(set_mute_srv));
+  EXPECT_TRUE(set_mute_srv.response.success);
+
+  // did it work?
+  ASSERT_TRUE(get_mute_client.call(get_mute_srv));
+  EXPECT_EQ(original_mute_state, get_mute_srv.response.mute);
+}
+
 int main(int argc, char **argv){
 testing::InitGoogleTest(&argc, argv);
 ros::init(argc, argv, "test_pacontrol");
