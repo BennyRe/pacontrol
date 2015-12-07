@@ -31,8 +31,19 @@ PaControl::PaControl() :  node_handle_("~"),
 
   if(!device_.empty())
   {
-    Device dev = pulse_.get_source(device_);
-    pulse_.set_mute(dev, muted_at_start_);
+    try
+    {
+      Device dev = pulse_.get_source(device_);
+      pulse_.set_mute(dev, muted_at_start_);
+    }
+    catch(std::string& e)
+    {
+      ROS_ERROR("Can't %s default device '%s'! Device not available: %s",
+                device_ ? "Mute" : "Unmute",
+                    device_.c_str(),
+                    e.c_str());
+      printSources();
+    }
   }
 }
 
