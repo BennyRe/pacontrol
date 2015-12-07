@@ -19,29 +19,25 @@
 #include <list>
 #include <boost/foreach.hpp>
 
-PaControl::PaControl() :  node_handle_("~"),
-                          pulse_("pacontrol"),
-                          get_mute_service_(node_handle_.advertiseService("get_mute", &PaControl::getMuteCb, this)),
-                          set_mute_service_(node_handle_.advertiseService("set_mute", &PaControl::setMuteCb, this)),
-                          dyn_reconf_server_(node_handle_),
-                          dyn_reconf_callback_(boost::bind(&PaControl::dynReconfCallback, this, _1, _2)),
-                          muted_at_start_(false)
+PaControl::PaControl() :
+    node_handle_("~"), pulse_("pacontrol"), get_mute_service_(
+        node_handle_.advertiseService("get_mute", &PaControl::getMuteCb, this)), set_mute_service_(
+        node_handle_.advertiseService("set_mute", &PaControl::setMuteCb, this)), dyn_reconf_server_(node_handle_), dyn_reconf_callback_(
+        boost::bind(&PaControl::dynReconfCallback, this, _1, _2)), muted_at_start_(false)
 {
   dyn_reconf_server_.setCallback(dyn_reconf_callback_);
 
-  if(!device_.empty())
+  if (!device_.empty())
   {
     try
     {
       Device dev = pulse_.get_source(device_);
       pulse_.set_mute(dev, muted_at_start_);
     }
-    catch(std::string& e)
+    catch (std::string& e)
     {
-      ROS_ERROR("Can't %s default device '%s'! Device not available: %s",
-                device_ ? "Mute" : "Unmute",
-                    device_.c_str(),
-                    e.c_str());
+      ROS_ERROR("Can't %s default device '%s'! Device not available: %s", device_ ? "Mute" : "Unmute", device_.c_str(),
+                e.c_str());
       printSources();
     }
   }
@@ -68,12 +64,12 @@ bool PaControl::getMuteCb(pacontrol::GetMute::Request& req, pacontrol::GetMute::
   std::string device_name = req.device_name.empty() ? device_ : req.device_name;
 
   try
-    {
-      Device dev = pulse_.get_source(device_name);
+  {
+    Device dev = pulse_.get_source(device_name);
     res.mute = dev.mute;
     success = true;
   }
-  catch(std::string& e)
+  catch (std::string& e)
   {
     ROS_ERROR("Device '%s' not available: %s", device_name.c_str(), e.c_str());
     printSources();
@@ -95,7 +91,7 @@ bool PaControl::setMuteCb(pacontrol::SetMute::Request& req, pacontrol::SetMute::
     res.success = true;
     success = true;
   }
-  catch(std::string& e)
+  catch (std::string& e)
   {
     ROS_ERROR("Device '%s' not available: %s", device_name.c_str(), e.c_str());
     printSources();
@@ -106,7 +102,7 @@ bool PaControl::setMuteCb(pacontrol::SetMute::Request& req, pacontrol::SetMute::
 
 void PaControl::dynReconfCallback(pacontrol::pacontrolConfig& config, uint32_t level)
 {
-  if(!config.default_device.empty())
+  if (!config.default_device.empty())
   {
     ROS_INFO("Set device name to '%s'", config.default_device.c_str());
     device_ = config.default_device;
