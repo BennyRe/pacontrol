@@ -36,7 +36,7 @@ PaControl::PaControl() :
     }
     catch (std::string& e)
     {
-      ROS_ERROR("Can't %s default device '%s'! Device not available: %s", device_ ? "Mute" : "Unmute", device_.c_str(),
+      ROS_ERROR("Can't %s default device '%s'! Device not available: %s", muted_at_start_ ? "Mute" : "Unmute", device_.c_str(),
                 e.c_str());
       printSources();
     }
