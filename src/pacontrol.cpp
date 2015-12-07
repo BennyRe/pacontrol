@@ -54,15 +54,17 @@ void PaControl::printSources()
 bool PaControl::getMuteCb(pacontrol::GetMute::Request& req, pacontrol::GetMute::Response& res)
 {
   bool success = false;
+  std::string device_name = req.device_name.empty() ? device_ : req.device_name;
+
   try
     {
-      Device dev = pulse_.get_source(req.device_name);
+      Device dev = pulse_.get_source(device_name);
     res.mute = dev.mute;
     success = true;
   }
   catch(std::string& e)
   {
-    ROS_ERROR("Device '%s' not available: %s", req.device_name.c_str(), e.c_str());
+    ROS_ERROR("Device '%s' not available: %s", device_name.c_str(), e.c_str());
     printSources();
   }
 
@@ -72,18 +74,19 @@ bool PaControl::getMuteCb(pacontrol::GetMute::Request& req, pacontrol::GetMute::
 bool PaControl::setMuteCb(pacontrol::SetMute::Request& req, pacontrol::SetMute::Response& res)
 {
   bool success = false;
+  std::string device_name = req.device_name.empty() ? device_ : req.device_name;
 
   try
   {
-    Device dev = pulse_.get_source(req.device_name);
-    ROS_INFO("%s device '%s.", req.mute ? "Mute" : "Unmute", req.device_name.c_str());
+    Device dev = pulse_.get_source(device_name);
+    ROS_INFO("%s device '%s.", req.mute ? "Mute" : "Unmute", device_name.c_str());
     pulse_.set_mute(dev, req.mute);
     res.success = true;
     success = true;
   }
   catch(std::string& e)
   {
-    ROS_ERROR("Device '%s' not available: %s", req.device_name.c_str(), e.c_str());
+    ROS_ERROR("Device '%s' not available: %s", device_name.c_str(), e.c_str());
     printSources();
   }
 
