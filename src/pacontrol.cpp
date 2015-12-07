@@ -22,15 +22,23 @@
 PaControl::PaControl() :  node_handle_("~"),
                           pulse_("pacontrol"),
                           get_mute_service_(node_handle_.advertiseService("get_mute", &PaControl::getMuteCb, this)),
-                          set_mute_service_(node_handle_.advertiseService("set_mute", &PaControl::setMuteCb, this))
+                          set_mute_service_(node_handle_.advertiseService("set_mute", &PaControl::setMuteCb, this)),
+                          dyn_reconf_server_(node_handle_),
+                          dyn_reconf_callback_(boost::bind(&PaControl::dynReconfCallback, this, _1, _2)),
+                          muted_at_start_(false)
 {
-  // TODO Auto-generated constructor stub
+  dyn_reconf_server_.setCallback(dyn_reconf_callback_);
 
+  if(!device_.empty())
+  {
+    Device dev = pulse_.get_source(device_);
+    pulse_.set_mute(dev, muted_at_start_);
+  }
 }
 
 PaControl::~PaControl()
 {
-  // TODO Auto-generated destructor stub
+
 }
 
 void PaControl::printSources()
@@ -80,4 +88,15 @@ bool PaControl::setMuteCb(pacontrol::SetMute::Request& req, pacontrol::SetMute::
   }
 
   return success;
+}
+
+void PaControl::dynReconfCallback(pacontrol::pacontrolConfig& config, uint32_t level)
+{
+  if(!config.default_device.empty())
+  {
+    ROS_INFO("Set device name to '%s'", config.default_device.c_str());
+    device_ = config.default_device;
+  }
+
+  muted_at_start_ = config.muted_at_start;
 }

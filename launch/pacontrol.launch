@@ -1,0 +1,7 @@
+<?xml version="1.0"?>
+<launch>
+  <node name="pacontrol" pkg="pacontrol" type="pacontrol" respawn="false" output="screen">
+    <param name="default_device" type="str" value="alsa_output.pci-0000_00_1b.0.analog-stereo.monitor" />
+    <param name="muted_at_start" type="bool" value="false" />
+  </node>
+</launch>

@@ -19,10 +19,13 @@
 #define PACONTROL_H_
 
 #include "ros/ros.h"
+#include "dynamic_reconfigure/server.h"
+
 #include "pacontrol/pulseaudio.hh"
 #include "pacontrol/device.hh"
 #include "pacontrol/GetMute.h"
 #include "pacontrol/SetMute.h"
+#include "pacontrol/pacontrolConfig.h"
 
 class PaControl
 {
@@ -35,11 +38,16 @@ public:
 private:
   bool getMuteCb(pacontrol::GetMute::Request& req, pacontrol::GetMute::Response& res);
   bool setMuteCb(pacontrol::SetMute::Request& req, pacontrol::SetMute::Response& res);
+  void dynReconfCallback(pacontrol::pacontrolConfig &config, uint32_t level);
 
   ros::NodeHandle node_handle_;
   Pulseaudio pulse_;
   ros::ServiceServer get_mute_service_;
   ros::ServiceServer set_mute_service_;
+  dynamic_reconfigure::Server<pacontrol::pacontrolConfig> dyn_reconf_server_;
+  dynamic_reconfigure::Server<pacontrol::pacontrolConfig>::CallbackType dyn_reconf_callback_;
+  std::string device_;
+  bool muted_at_start_;
 };
 
 #endif /* PACONTROL_H_ */

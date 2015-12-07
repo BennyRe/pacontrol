@@ -5,6 +5,7 @@ project(pacontrol)
 ## if COMPONENTS list like find_package(catkin REQUIRED COMPONENTS xyz)
 ## is used, also find other catkin packages
 find_package(catkin REQUIRED COMPONENTS
+  dynamic_reconfigure
   message_generation
   roscpp
   rostest
@@ -87,10 +88,9 @@ generate_messages(
 ##     and list every .cfg file to be processed
 
 ## Generate dynamic reconfigure parameters in the 'cfg' folder
-# generate_dynamic_reconfigure_options(
-#   cfg/DynReconf1.cfg
-#   cfg/DynReconf2.cfg
-# )
+generate_dynamic_reconfigure_options(
+  cfg/pacontrol.cfg
+)
 
 ###################################
 ## catkin specific configuration ##
@@ -136,7 +136,7 @@ add_executable(pacontrol src/callbacks.cc src/device.cc src/pacontrol_node.cc sr
 
 ## Add cmake target dependencies of the executable
 ## same as for the library above
-add_dependencies(pacontrol ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+add_dependencies(pacontrol ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS} ${PROJECT_NAME}_gencfg)
 message(STATUS "Pulse libraries " ${PULSEAUDIO_LIBRARIES})
 ## Specify libraries to link a library or executable target against
 target_link_libraries(pamixer
